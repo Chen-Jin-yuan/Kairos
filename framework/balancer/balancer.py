@@ -11,7 +11,7 @@ from framework.logger import FileLogger
 from framework.utils import ThreadSafeDeque
 from .balancer_setting import PRIORITY_TABLE, PREDICT_TIME_TABLE
 from .metrics import MetricsManager
-from .memory_predictor import MemoryPredictorManager
+from .memory_perceptor import MemoryPerceptorManager
 from .token_counter import TokenCounter
 
 is_queue = False
@@ -48,8 +48,8 @@ class LoadBalancerServer:
         self.metrics_manager = MetricsManager(url_list)
         self.logger.log(f"init MetricsManager with llm urls: {url_list}")
 
-        self.memory_predictor_manager = MemoryPredictorManager(self.metrics_manager)
-        self.logger.log(f"init MemoryPredictorManager with llm urls: {url_list}")
+        self.memory_predictor_manager = MemoryPerceptorManager(self.metrics_manager)
+        self.logger.log(f"init MemoryPerceptorManager with llm urls: {url_list}")
 
         self.token_counter = TokenCounter(agents_use_model)
         self.logger.log(f"init TokenCounter")
@@ -187,15 +187,12 @@ class LoadBalancerServer:
         prompt_len = self.token_counter.count_tokens(agent_name, data["prompt"])
         metadata["prompt_len"] = prompt_len
 
-        wait_start = time.time()
 
         if self.mode == "balancing":
             url = self.wait_and_get_llm_url(metadata)
 
-        wait_end = time.time()
-        self.increase_waiting_time(wait_end - wait_start)
 
-        self.logger.log(f"Extracted metadata: {metadata}, decide to llm url: {url}, total_waiting_time: {self.total_waiting_time}")
+        self.logger.log(f"Extracted metadata: {metadata}, decide to llm url: {url}")
 
         if url is None:
             return {"error": "No LLM URLs available"}

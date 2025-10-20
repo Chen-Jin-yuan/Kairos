@@ -13,7 +13,7 @@ class Request:
         self.interval_starts = []
 
 
-class MemoryPredictor:
+class MemoryPerceptor:
     def __init__(self, llm_url, metrics, interval_length=0.1):
         node, port = self._parse_node_and_port(llm_url)
 
@@ -25,7 +25,7 @@ class MemoryPredictor:
         self.log_interval = interval_length
         self.logger = FileLogger(f"logs/mem_pred_{node}_{port}.log")
         self.logger.clear_log_file()
-        self.logger.log(f"MemoryPredictor is logging with interval {self.log_interval} s")
+        self.logger.log(f"MemoryPerceptor is logging with interval {self.log_interval} s")
 
 
         self.metrics = metrics
@@ -178,12 +178,12 @@ class MemoryPredictor:
 
 
 
-class MemoryPredictorManager:
+class MemoryPerceptorManager:
     def __init__(self, metrics_manager):
         self.metrics_manager = metrics_manager
         self.mem_pred_instances = {}
         for llm_url, metrics in metrics_manager.metrics_instances.items():
-            mem_pred = MemoryPredictor(llm_url, metrics, PREDICT_INTERVAL)
+            mem_pred = MemoryPerceptor(llm_url, metrics, PREDICT_INTERVAL)
             self.mem_pred_instances[llm_url] = mem_pred
 
     def try_add_request(self, urls, msg_id, prompt_length, predicted_time):
